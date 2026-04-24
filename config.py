@@ -10,7 +10,7 @@ class Config:
     TIMESTEPS = 4
     BATCH_SIZE = 64
     EPOCHS = 120
-    LEARNING_RATE = 0.002
+    LEARNING_RATE = 0.001
 
     # Neuron hyperparameters (paper Table 1)
     V_THR_N = 1.0    # Nominal threshold
@@ -23,9 +23,10 @@ class Config:
     GRAD_CLIP = 1.0
 
     # Backdoor settings
-    TARGET_LABEL    = 0
-    POISONING_RATIO = 0.02          # CIFAR-10 default (paper); per-dataset in DATASET_SPECS
-    POISONING_RATIOS = [0.01, 0.02, 0.03, 0.05]
+    TARGET_LABEL         = 0
+    POISONING_RATIO      = 0.02          # CIFAR-10 default (paper); per-dataset in DATASET_SPECS
+    POISONING_RATIOS     = [0.01, 0.02, 0.03, 0.05]
+    MALICIOUS_LOSS_SCALE = 0.1           # Weight for Pass-2 loss to prevent nominal collapse
 
     # Trigger T_p: power transformation (Equation 3)
     POWER_Q = 3.0

@@ -45,6 +45,9 @@ class LIFNeuron(neuron.LIFNode):
         We inline the LIF forward rather than calling super().forward() to ensure
         self.v_threshold is read fresh each call (SpikingJelly may cache internally).
         """
+        # SpikingJelly compiled kernels require v to be a Tensor, not float(0.0)
+        if isinstance(self.v, float):
+            self.v = torch.full_like(x, self.v)
         # Charge: V[t] = V[t-1] * (1 - 1/tau) + x
         self.neuronal_charge(x)
         # Fire: spike = 1 if V >= v_threshold else 0 (surrogate gradient in backward)

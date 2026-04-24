@@ -141,7 +141,7 @@ def backdoor_train(model, train_loader, poison_loader, optimizer, tau_t=None):
         optimizer.zero_grad()
         functional.reset_net(model)
         outputs = model(inputs_seq)
-        loss_t  = criterion(outputs, targets)
+        loss_t  = criterion(outputs, targets) * Config.MALICIOUS_LOSS_SCALE
         loss_t.backward()
         if Config.GRAD_CLIP > 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), Config.GRAD_CLIP)
