@@ -8,7 +8,7 @@ class Config:
     # Model settings
     MODEL = 'resnet19'  # resnet19, vgg16, nmnist_net
     TIMESTEPS = 4
-    BATCH_SIZE = 128
+    BATCH_SIZE = 256
     EPOCHS = 120
     LEARNING_RATE = 0.001
 
