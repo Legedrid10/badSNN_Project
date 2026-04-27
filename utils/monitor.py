@@ -303,7 +303,7 @@ class TrainingMonitor:
             plt.savefig(save_path, dpi=150, bbox_inches='tight')
             print(f"📊 Plot saved to {save_path}")
 
-        plt.show()
+        plt.close(fig)
 
     def get_summary(self):
         """Generate training summary."""
