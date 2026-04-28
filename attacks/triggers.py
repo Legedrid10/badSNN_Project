@@ -7,21 +7,31 @@ from config import Config
 
 def T_p(x, q=None):
     """Power transformation trigger (Equation 3)
-    Normalizes to [0, 1], applies power q, and denormalizes.
+    Normalizes each image to [0, 1] independently, applies power q, and denormalizes.
+    Handles input shapes [B, C, H, W] and [T, B, C, H, W].
     """
     if q is None:
-        q = Config.POWER_Q  # Use config value if not specified
+        q = Config.POWER_Q
 
-    x_min = x.min()
-    x_max = x.max()
+    orig_shape = x.shape
+    if x.dim() == 5:
+        # [T, B, C, H, W] -> [T*B, C*H*W] for per-image min/max
+        x_flat = x.reshape(orig_shape[0] * orig_shape[1], -1)
+    else:
+        # [B, C, H, W] -> [B, C*H*W]
+        x_flat = x.reshape(orig_shape[0], -1)
 
-    if x_max == x_min:
-        return x
+    x_min = x_flat.min(dim=1, keepdim=True).values
+    x_max = x_flat.max(dim=1, keepdim=True).values
 
-    x_norm = (x - x_min) / (x_max - x_min)
+    constant = (x_max == x_min)
+    denom = torch.where(constant, torch.ones_like(x_max), x_max - x_min)
+    x_norm = (x_flat - x_min) / denom
     x_transformed = x_norm ** q
+    result = x_transformed * (x_max - x_min) + x_min
+    result = torch.where(constant, x_flat, result)
 
-    return x_transformed * (x_max - x_min) + x_min
+    return result.reshape(orig_shape)
 
 def T_s(x, beta=0.03):
     """Neuromorphic noise trigger (Equation 7)

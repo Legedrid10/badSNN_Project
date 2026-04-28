@@ -26,7 +26,7 @@ class Config:
     TARGET_LABEL         = 0
     POISONING_RATIO      = 0.02          # CIFAR-10 default (paper); per-dataset in DATASET_SPECS
     POISONING_RATIOS     = [0.01, 0.02, 0.03, 0.05]
-    MALICIOUS_LOSS_SCALE = 0.3           # Weight for Pass-2 loss to prevent nominal collapse
+    MALICIOUS_LOSS_SCALE = 0.1           # Weight for Pass-2 loss to prevent nominal collapse
 
     # Trigger T_p: power transformation (Equation 3)
     POWER_Q = 3.0

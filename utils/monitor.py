@@ -173,18 +173,18 @@ class TrainingMonitor:
         if self.health_status == "CRITICAL":
             print(f"\n  💡 RECOMMENDATION:")
             if base_ca < 15:
-                print(f"      → STOP TRAINING! Model collapsed. Reduce alpha to 0.001 and restart.")
+                print(f"      → STOP TRAINING! Model collapsed. Reduce MALICIOUS_LOSS_SCALE and restart.")
             if asr > 95 and base_ca < 20:
-                print(f"      → STOP TRAINING! Model predicting only target label. Reduce alpha drastically.")
+                print(f"      → STOP TRAINING! Model predicting only target label. Reduce MALICIOUS_LOSS_SCALE drastically.")
 
         elif self.health_status == "WARNING":
             print(f"\n  💡 SUGGESTION:")
             if base_ca < 50 and epoch > 20:
-                print(f"      → Consider reducing alpha if CA doesn't improve by epoch {epoch + 10}")
+                print(f"      → Consider reducing MALICIOUS_LOSS_SCALE if CA doesn't improve by epoch {epoch + 10}")
             if loss_t > loss_n * 0.5:
-                print(f"      → Malicious loss too high. Alpha might be too large.")
+                print(f"      → Malicious loss too high. MALICIOUS_LOSS_SCALE might be too large.")
             if asr < 30 and epoch > 20 and not warmup:
-                print(f"      → Backdoor not learning. Consider increasing alpha slightly or check trigger.")
+                print(f"      → Backdoor not learning. Consider increasing MALICIOUS_LOSS_SCALE slightly or check trigger.")
 
         print(f"{'='*90}\n")
 
