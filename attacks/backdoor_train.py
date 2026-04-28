@@ -74,7 +74,7 @@ def _to_seq(inputs):
     return inputs
 
 
-def backdoor_train(model, train_loader, poison_loader, optimizer, tau_t=None):
+def backdoor_train(model, train_loader, poison_loader, optimizer, tau_t=None, warmup=False):
     """
     One epoch of dual-spike learning (Equation 2, BadSNN paper).
 
@@ -83,14 +83,13 @@ def backdoor_train(model, train_loader, poison_loader, optimizer, tau_t=None):
         Train on full dataset D with true labels.
         Backpropagate loss independently.
 
-    Pass 2 — Malicious spikes:
+    Pass 2 — Malicious spikes (skipped during warmup):
         Set ALL neurons to (V_thr_t=1.5, tau_t).
         Train on D_t_p only. Labels are already target_label — no relabeling.
         Backpropagate loss independently.
 
     No triggers applied during training.
     No alpha weighting between losses.
-    No warmup phase.
     """
     if tau_t is None:
         tau_t = Config.TAU_T
@@ -130,24 +129,26 @@ def backdoor_train(model, train_loader, poison_loader, optimizer, tau_t=None):
     # ------------------------------------------------------------------ #
     # PASS 2: Malicious hyperparameters, D_t_p only, true labels          #
     # (true labels are already target_label — no relabeling)              #
+    # Skipped during warmup epochs so the model first learns nominal task. #
     # ------------------------------------------------------------------ #
-    set_all_neuron_hyperparams(model, Config.V_THR_T, tau_t)
+    if not warmup:
+        set_all_neuron_hyperparams(model, Config.V_THR_T, tau_t)
 
-    for inputs, targets in poison_loader:
-        inputs  = inputs.to(Config.DEVICE)
-        targets = targets.to(Config.DEVICE)
-        inputs_seq = _to_seq(inputs)
+        for inputs, targets in poison_loader:
+            inputs  = inputs.to(Config.DEVICE)
+            targets = targets.to(Config.DEVICE)
+            inputs_seq = _to_seq(inputs)
 
-        optimizer.zero_grad()
-        functional.reset_net(model)
-        outputs = model(inputs_seq)
-        loss_t  = criterion(outputs, targets) * Config.MALICIOUS_LOSS_SCALE
-        loss_t.backward()
-        if Config.GRAD_CLIP > 0:
-            torch.nn.utils.clip_grad_norm_(model.parameters(), Config.GRAD_CLIP)
-        optimizer.step()
+            optimizer.zero_grad()
+            functional.reset_net(model)
+            outputs = model(inputs_seq)
+            loss_t  = criterion(outputs, targets) * Config.MALICIOUS_LOSS_SCALE
+            loss_t.backward()
+            if Config.GRAD_CLIP > 0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), Config.GRAD_CLIP)
+            optimizer.step()
 
-        total_loss_t += loss_t.item()
+            total_loss_t += loss_t.item()
 
     # Restore nominal state after epoch so evaluation can start clean
     set_all_neuron_hyperparams(model, Config.V_THR_N, Config.TAU_N)

@@ -123,12 +123,14 @@ def main():
         best_ckpt   = None
 
         for epoch in range(Config.EPOCHS):
+            is_warmup = (epoch < Config.WARMUP_EPOCHS)
             backdoor_model, t_loss, _, loss_n, loss_t = backdoor_train(
                 model,
                 train_loader,
                 poison_loader,
                 optimizer,
                 tau_t=tau_t,
+                warmup=is_warmup,
             )
             scheduler.step()
 
@@ -149,7 +151,7 @@ def main():
                 elapsed = time.time() - start_time
                 monitor.print_status(
                     epoch, Config.EPOCHS, t_loss, loss_n, loss_t,
-                    base_ca, ca_attack, asr, warmup=False
+                    base_ca, ca_attack, asr, warmup=is_warmup
                 )
 
                 with open(csv_path, "a") as f:

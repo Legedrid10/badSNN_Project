@@ -8,7 +8,7 @@ class Config:
     # Model settings
     MODEL = 'resnet19'  # resnet19, vgg16, nmnist_net
     TIMESTEPS = 4
-    BATCH_SIZE = 256
+    BATCH_SIZE = 65
     EPOCHS = 120
     LEARNING_RATE = 0.001
 
@@ -21,6 +21,7 @@ class Config:
     TAU_A   = 0.5    # Attack time constant
 
     GRAD_CLIP = 1.0
+    WARMUP_EPOCHS = 15  # Pass-1-only epochs before dual-spike learning begins
 
     # Backdoor settings
     TARGET_LABEL         = 0

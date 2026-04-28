@@ -29,7 +29,6 @@ class NMNISTNet(nn.Module):
         self.lif3 = LIFNeuron(step_mode='s')
         
         self.fc2 = nn.Linear(128, num_classes)
-        self.lif4 = LIFNeuron(step_mode='s')
 
     def forward(self, x_seq, is_malicious=False):
         # x_seq shape: [T, B, 2, 34, 34] for N-MNIST
@@ -57,8 +56,6 @@ class NMNISTNet(nn.Module):
             out = self.lif3(out, is_malicious=is_malicious)
             
             out = self.fc2(out)
-            out = self.lif4(out, is_malicious=is_malicious)
-            
             out_spikes.append(out)
             
         functional.reset_net(self)

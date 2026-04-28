@@ -58,7 +58,6 @@ class SpikingResNet19(nn.Module):
 
         self.pool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * BasicBlock.expansion, num_classes)
-        self.lif_out = LIFNeuron(step_mode='s')
 
     def _make_layer(self, planes, num_blocks, stride):
         strides = [stride] + [1] * (num_blocks - 1)
@@ -94,8 +93,6 @@ class SpikingResNet19(nn.Module):
             out = self.pool(out)
             out = out.reshape(out.size(0), -1)
             out = self.fc(out)
-            out = self.lif_out(out, is_malicious=is_malicious)
-            
             out_spikes.append(out)
             
         # Crucial: Reset states to prevent data leakage between batches

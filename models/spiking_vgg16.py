@@ -31,7 +31,6 @@ class SpikingVGG16(nn.Module):
         self.classifier = nn.Sequential(
             nn.Linear(512, num_classes)
         )
-        self.lif_out = LIFNeuron(step_mode='s')
 
     def _make_layers(self, cfg):
         layers = nn.ModuleList()
@@ -62,8 +61,6 @@ class SpikingVGG16(nn.Module):
             out = self.pool(out)
             out = out.reshape(out.size(0), -1)
             out = self.classifier(out)
-            out = self.lif_out(out, is_malicious=is_malicious)
-            
             out_spikes.append(out)
             
         # Reset neuron states
